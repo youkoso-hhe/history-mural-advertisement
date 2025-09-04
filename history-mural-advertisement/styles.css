@@ -72,9 +72,11 @@ html, body {
   position: fixed;
   top: 50%;
   left: 50%;
-  
   /* 要素の中心が画面の中心に来るように調整 */
   transform: translate(-50%, -50%);
+  display: flex;
+  justify-content: center; /* 水平方向の中央揃え */
+  align-items: center;
   
   /* 見た目のスタイル */
   background-color: rgba(0, 0, 0, 0.8); /* 少し透けた黒 */
@@ -87,4 +89,5 @@ html, body {
   /* 他の要素より手前に表示 */
   z-index: 1000;
 }
+
 
