@@ -34,8 +34,8 @@ function resizeArtboard() {
   
   artboard.style.transform = `scale(${scale})`;
   // 中央揃えのための位置調整（必要に応じて）
-  artboard.style.left = `${(windowWidth - baseWidth * scale) / 2}px`;
-  artboard.style.top = `${(windowHeight - baseHeight * scale) / 2}px`;
+  //artboard.style.left = `${(windowWidth - baseWidth * scale) / 2}px`;
+  //artboard.style.top = `${(windowHeight - baseHeight * scale) / 2}px`;
 }
 
 // ページを読み込む関数
@@ -119,4 +119,5 @@ nextPageBtn.addEventListener('click', (e) => {
 // --- アプリケーション開始 ---
 resizeArtboard();
 loadPage(currentPageIndex);
+
 translateUI(); // ← ページの読み込み時に一度だけ実行
