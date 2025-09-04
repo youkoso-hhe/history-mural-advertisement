@@ -117,7 +117,10 @@ nextPageBtn.addEventListener('click', (e) => {
 });
 
 // --- アプリケーション開始 ---
-resizeArtboard();
-loadPage(currentPageIndex);
+// ページと全てのコンテンツ（CSS,画像など）の読み込みが完了してから初期化処理を実行
+window.addEventListener('load', () => {
+  resizeArtboard();
+  loadPage(currentPageIndex);
+  translateUI();
+});
 
-translateUI(); // ← ページの読み込み時に一度だけ実行
