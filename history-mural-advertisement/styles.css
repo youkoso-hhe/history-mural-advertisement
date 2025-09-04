@@ -61,4 +61,25 @@ html, body {
   padding: 10px 20px;
   font-size: 18px;
   z-index: 100;
+
+}
+#final-message {
+  /* 画面を基準にした絶対位置指定 */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  
+  /* 要素の中心が画面の中心に来るように調整 */
+  transform: translate(-50%, -50%);
+  
+  /* 見た目のスタイル */
+  background-color: rgba(0, 0, 0, 0.8); /* 少し透けた黒 */
+  color: white;
+  padding: 25px 40px;
+  border-radius: 10px;
+  font-size: 24px;
+  text-align: center;
+  
+  /* 他の要素より手前に表示 */
+  z-index: 1000;
 }
