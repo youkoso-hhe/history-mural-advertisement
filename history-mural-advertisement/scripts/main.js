@@ -31,8 +31,17 @@ function resizeArtboard() {
   const windowHeight = window.innerHeight;
 
   const scale = Math.min(windowWidth / baseWidth, windowHeight / baseHeight);
+
+  // 水平方向の中央揃えに必要な移動量を計算
+  const offsetX = (windowWidth - baseWidth * scale) / 2;
   
-  artboard.style.transform = `scale(${scale})`;
+  // 垂直方向の位置調整に必要な移動量を計算 (少し上に表示)
+  const offsetY = (windowHeight - baseHeight * scale) / 3; // ← / 3 や / 8 などお好みで調整
+
+  // 「移動(translate)」と「拡大・縮小(scale)」をtransformプロパティで一度に指定
+  artboard.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
+  
+  //artboard.style.transform = `scale(${scale})`;
   // 中央揃えのための位置調整（必要に応じて）
   //artboard.style.left = `${(windowWidth - baseWidth * scale) / 2}px`;
   //artboard.style.top = `${(windowHeight - baseHeight * scale) / 2}px`;
@@ -123,4 +132,5 @@ window.addEventListener('load', () => {
   loadPage(currentPageIndex);
   translateUI();
 });
+
 
