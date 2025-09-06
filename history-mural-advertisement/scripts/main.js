@@ -81,7 +81,7 @@ function showNextPiece() {
   adElement.style.height = pieceData.height;
   adElement.style.clipPath = `url(#${pieceData.clipPathId})`;
 
-  const adClient = 'pub-4222268682478872'; // ID
+  const adClient = 'ca-pub-4222268682478872'; // ID
   const adSlot = '7927145069'; // 自分のスロットID
 
   adElement.innerHTML = `<ins class="adsbygoogle" style="display:block; width:100%; height:100%;" data-ad-client="${adClient}" data-ad-slot="${adSlot}"></ins>`;
@@ -132,6 +132,7 @@ window.addEventListener('load', () => {
   loadPage(currentPageIndex);
   translateUI();
 });
+
 
 
 
