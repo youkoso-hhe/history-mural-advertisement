@@ -86,16 +86,20 @@ function showNextPiece() {
 
   //adElement.innerHTML = `<ins class="adsbygoogle" style="display:block; width:100%; height:100%;" data-ad-client="${adClient}" data-ad-slot="${adSlot}"></ins>`;
   //adElement.innerHTML = `<script src="https://adm.shinobi.jp/s/1447b7928ae9bb4ca1f5940aec4a4516"></script>`;
-  // 1. script要素をプログラムで作成
-  const adScript = document.createElement('script');
+  // ▼▼▼ iframe を使った、最終的で確実な広告表示コード ▼▼▼
+  const adTag = '<script src="https://adm.shinobi.jp/s/1447b7928ae9bb4ca1f5940aec4a4516"><\/script>';
+  const iframe = document.createElement('iframe');
+  iframe.style.width = '100%';
+  iframe.style.height = '100%';
+  iframe.style.border = '0';
+  iframe.style.overflow = 'hidden';
+  iframe.setAttribute('scrolling', 'no');
   
-  // 2. 忍者AdMaxの広告タグのURLを設定
-  adScript.src = 'https://adm.shinobi.jp/s/1447b7928ae9bb4ca1f5940aec4a4516';
-  adScript.async = true; // 非同期で読み込む設定
-  
-  // 3. 広告枠(adElement)の中に、作成したscript要素を追加
-  // これにより、ブラウザがスクリプトを読み込み、実行します。
-  adElement.appendChild(adScript);
+  adElement.appendChild(iframe);
+  const iframeDoc = iframe.contentWindow.document;
+  iframeDoc.open();
+  iframeDoc.write('<html><head></head><body style="margin:0;">' + adTag + '</body></html>');
+  iframeDoc.close();
   
   artboard.appendChild(adElement);
 
@@ -143,6 +147,7 @@ window.addEventListener('load', () => {
   loadPage(currentPageIndex);
   translateUI();
 });
+
 
 
 
