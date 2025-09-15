@@ -99,12 +99,16 @@ function showNextPiece() {
   // document.writeで生成されたHTMLを取得
   iframeDoc.write(adTag);
   iframeDoc.close();
-  
-  // document.writeによってiframe内に生成された広告要素を、
-  // 本来の広告枠(adElement)に移動させる
-  const adContent = iframeDoc.body.firstChild;
-  if (adContent) {
+
+  // iframeの中身(body)に、実際に広告要素が生成されたかを確認する
+  if (iframeDoc.body && iframeDoc.body.firstChild) {
+    // もし中身があれば、それをadElementに移動する
+    const adContent = iframeDoc.body.firstChild;
     adElement.appendChild(adContent);
+  } else {
+    // もし中身が空っぽだったら（広告がブロックされた場合など）、
+    // 何もせず、adElementは灰色の枠のままにする
+    console.warn('Ad content not generated for this piece, displaying placeholder.');
   }
   
   // 一時的に使ったiframeはページから削除
@@ -156,6 +160,7 @@ window.addEventListener('load', () => {
   loadPage(currentPageIndex);
   translateUI();
 });
+
 
 
 
