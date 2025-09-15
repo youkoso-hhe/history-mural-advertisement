@@ -87,32 +87,18 @@ function showNextPiece() {
   //adElement.innerHTML = `<ins class="adsbygoogle" style="display:block; width:100%; height:100%;" data-ad-client="${adClient}" data-ad-slot="${adSlot}"></ins>`;
   //adElement.innerHTML = `<script src="https://adm.shinobi.jp/s/1447b7928ae9bb4ca1f5940aec4a4516"></script>`;
   // ▼▼▼ iframe を使った、最終的で確実な広告表示コード ▼▼▼
-  // 一時的に非表示のiframeを作成して、その中でdocument.writeを実行させる
-  const adTag = '<script src="https://adm.shinobi.jp/s/1447b7928ae9bb4ca1f5940aec4a4516"><\/script>';
+  const adTagHTML = '<html><head></head><body style="margin:0;"><script src="https://adm.shinobi.jp/s/1447b7928ae9bb4ca1f5940aec4a4516"><\/script></body></html>';
   
-  const tempIframe = document.createElement('iframe');
-  tempIframe.style.display = 'none'; // 画面には表示しない
-  document.body.appendChild(tempIframe); // 一時的にページに追加
-
-  const iframeDoc = tempIframe.contentWindow.document;
-  iframeDoc.open();
-  // document.writeで生成されたHTMLを取得
-  iframeDoc.write(adTag);
-  iframeDoc.close();
-
-  // iframeの中身(body)に、実際に広告要素が生成されたかを確認する
-  if (iframeDoc.body && iframeDoc.body.firstChild) {
-    // もし中身があれば、それをadElementに移動する
-    const adContent = iframeDoc.body.firstChild;
-    adElement.appendChild(adContent);
-  } else {
-    // もし中身が空っぽだったら（広告がブロックされた場合など）、
-    // 何もせず、adElementは灰色の枠のままにする
-    console.warn('Ad content not generated for this piece, displaying placeholder.');
-  }
+  const iframe = document.createElement('iframe');
+  iframe.style.width = '100%';
+  iframe.style.height = '100%';
+  iframe.style.border = '0';
+  iframe.setAttribute('scrolling', 'no');
   
-  // 一時的に使ったiframeはページから削除
-  document.body.removeChild(tempIframe);
+  // iframeのsrcdocプロパティに、広告タグを含むHTMLを直接設定
+  iframe.srcdoc = adTagHTML;
+  
+  adElement.appendChild(iframe);
   
   artboard.appendChild(adElement);
 
@@ -160,6 +146,7 @@ window.addEventListener('load', () => {
   loadPage(currentPageIndex);
   translateUI();
 });
+
 
 
 
