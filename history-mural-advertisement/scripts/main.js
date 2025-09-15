@@ -85,7 +85,28 @@ function showNextPiece() {
   //const adSlot = '7758218160'; // 自分のスロットID
 
   //adElement.innerHTML = `<ins class="adsbygoogle" style="display:block; width:100%; height:100%;" data-ad-client="${adClient}" data-ad-slot="${adSlot}"></ins>`;
-  adElement.innerHTML = `<script src="https://adm.shinobi.jp/s/1447b7928ae9bb4ca1f5940aec4a4516"></script>`;
+  //adElement.innerHTML = `<script src="https://adm.shinobi.jp/s/1447b7928ae9bb4ca1f5940aec4a4516"></script>`;
+  // 1. 広告タグを変数として用意
+  const adTag = '<script src="https://adm.shinobi.jp/s/1447b7928ae9bb4ca1f5940aec4a4516"><\/script>';
+  
+  // 2. iframe要素を作成
+  const iframe = document.createElement('iframe');
+  iframe.style.width = '100%';
+  iframe.style.height = '100%';
+  iframe.style.border = '0';
+  iframe.style.overflow = 'hidden';
+  iframe.scrolling = 'no';
+  
+  // 3. 広告枠(adElement)の中にiframeを配置
+  adElement.appendChild(iframe);
+
+  // 4. iframeの中に広告タグを書き込む
+  //    これなら安全にdocument.writeが動作する
+  const iframeDoc = iframe.contentWindow.document;
+  iframeDoc.open();
+  iframeDoc.write(adTag);
+  iframeDoc.close();
+  
   artboard.appendChild(adElement);
 
   try {
@@ -132,6 +153,7 @@ window.addEventListener('load', () => {
   loadPage(currentPageIndex);
   translateUI();
 });
+
 
 
 
