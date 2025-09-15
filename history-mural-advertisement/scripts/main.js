@@ -109,11 +109,11 @@ function showNextPiece() {
   
   artboard.appendChild(adElement);
 
-  try {
-    (adsbygoogle = window.adsbygoogle || []).push({});
-  } catch (e) {
-    console.error("AdSense push error: ", e);
-  }
+  //try {
+  //  (adsbygoogle = window.adsbygoogle || []).push({});
+  //} catch (e) {
+  //  console.error("AdSense push error: ", e);
+  //}
 
   currentPieceIndex++;
   pieceTimer = setTimeout(showNextPiece, 3000);
@@ -153,6 +153,7 @@ window.addEventListener('load', () => {
   loadPage(currentPageIndex);
   translateUI();
 });
+
 
 
 
