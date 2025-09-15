@@ -95,11 +95,14 @@ function showNextPiece() {
   iframe.style.overflow = 'hidden';
   iframe.setAttribute('scrolling', 'no');
   
-  adElement.appendChild(iframe);
-  const iframeDoc = iframe.contentWindow.document;
-  iframeDoc.open();
-  iframeDoc.write('<html><head></head><body style="margin:0;">' + adTag + '</body></html>');
-  iframeDoc.close();
+  // 【重要】iframeの読み込みが完了してから、中の処理を実行するように設定します
+  iframe.onload = function() {
+    // iframeの準備が整ってから、安全に広告タグを書き込みます
+    const iframeDoc = iframe.contentWindow.document;
+    iframeDoc.open();
+    iframeDoc.write('<html><head></head><body style="margin:0;">' + adTag + '</body></html>');
+    iframeDoc.close();
+  };
   
   artboard.appendChild(adElement);
 
@@ -147,6 +150,7 @@ window.addEventListener('load', () => {
   loadPage(currentPageIndex);
   translateUI();
 });
+
 
 
 
