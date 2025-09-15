@@ -81,11 +81,11 @@ function showNextPiece() {
   adElement.style.height = pieceData.height;
   adElement.style.clipPath = `url(#${pieceData.clipPathId})`;
 
-  const adClient = 'ca-pub-4222268682478872'; // ID
-  const adSlot = '7758218160'; // 自分のスロットID
+  //const adClient = 'ca-pub-4222268682478872'; // ID
+  //const adSlot = '7758218160'; // 自分のスロットID
 
-  adElement.innerHTML = `<ins class="adsbygoogle" style="display:block; width:100%; height:100%;" data-ad-client="${adClient}" data-ad-slot="${adSlot}"></ins>`;
-
+  //adElement.innerHTML = `<ins class="adsbygoogle" style="display:block; width:100%; height:100%;" data-ad-client="${adClient}" data-ad-slot="${adSlot}"></ins>`;
+  adElement.innerHTML = `<script src="https://adm.shinobi.jp/s/1447b7928ae9bb4ca1f5940aec4a4516"></script>`;
   artboard.appendChild(adElement);
 
   try {
@@ -132,6 +132,7 @@ window.addEventListener('load', () => {
   loadPage(currentPageIndex);
   translateUI();
 });
+
 
 
 
