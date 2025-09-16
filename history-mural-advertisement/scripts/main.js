@@ -1,6 +1,21 @@
 import { pagesData } from './data.js';
 import { translations } from './translations.js';
 
+const adTags = [
+  '<script src="https://adm.shinobi.jp/s/1447b7928ae9bb4ca1f5940aec4a4516"><\/script>',
+  '<script src="https://adm.shinobi.jp/s/c3242eb5f525cb8136f92047f477e9de"></script>',
+  '<script src="https://adm.shinobi.jp/s/84812d06e9b861b75b7981c7f74ccc8b"></script>',
+  '<script src="https://adm.shinobi.jp/s/8b90766efb3a831e438882a0c036aa83"></script>',
+  '<script src="https://adm.shinobi.jp/s/ebb9b7ec871425caee8bc85123e83553"></script>',
+  '<script src="https://adm.shinobi.jp/s/aa9316e991247a72eaf6ebb767cbb753"></script>,
+  '<script src="https://adm.shinobi.jp/s/c5a1d9691dbce806419f422a435b51f8"></script>',
+  '<script src="https://adm.shinobi.jp/s/12a27a1d2371a6d4526db3fc9a78c83b"></script>',
+  '<script src="https://adm.shinobi.jp/s/e1abadac49515543185dd357ccfe0c70"></script>',
+  '<script src="https://adm.shinobi.jp/s/3fcafe8cb78c649522128f137a094c67"></script>',
+  // ... 作成した広告タグをすべてここに追加 ...
+];
+let adTagIndex = 0; // 表示する広告タグのインデックスを管理
+
 const artboard = document.getElementById('artboard');
 const nextPageBtn = document.getElementById('next-page-btn');
 const finalMessage = document.getElementById('final-message');
@@ -86,19 +101,23 @@ function showNextPiece() {
 
   //adElement.innerHTML = `<ins class="adsbygoogle" style="display:block; width:100%; height:100%;" data-ad-client="${adClient}" data-ad-slot="${adSlot}"></ins>`;
   //adElement.innerHTML = `<script src="https://adm.shinobi.jp/s/1447b7928ae9bb4ca1f5940aec4a4516"></script>`;
-  // ▼▼▼ iframe を使った、最終的で確実な広告表示コード ▼▼▼
-  const adTagHTML = '<html><head></head><body style="margin:0;"><script src="https://adm.shinobi.jp/s/1447b7928ae9bb4ca1f5940aec4a4516"><\/script></body></html>';
+  
+  const currentAdTag = adTags[adTagIndex];
+  const adTagHTML = `<html><head></head><body style="margin:0;">${currentAdTag}</body></html>`;
   
   const iframe = document.createElement('iframe');
   iframe.style.width = '100%';
   iframe.style.height = '100%';
   iframe.style.border = '0';
   iframe.setAttribute('scrolling', 'no');
-  
-  // iframeのsrcdocプロパティに、広告タグを含むHTMLを直接設定
   iframe.srcdoc = adTagHTML;
   
   adElement.appendChild(iframe);
+
+  adTagIndex++;
+  if (adTagIndex >= adTags.length) {
+    adTagIndex = 0;
+  }
   
   artboard.appendChild(adElement);
 
@@ -146,6 +165,7 @@ window.addEventListener('load', () => {
   loadPage(currentPageIndex);
   translateUI();
 });
+
 
 
 
