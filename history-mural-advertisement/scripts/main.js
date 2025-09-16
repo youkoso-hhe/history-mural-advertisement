@@ -7,14 +7,8 @@ const finalMessage = document.getElementById('final-message');
 const clickSound = new Audio('./audio/click.mp3');
 let isFirstClick = true;
 let currentPageIndex = 0;
-
-// UIのテキストを翻訳する関数
-function translateUI() {
-  const lang = navigator.language.split('-')[0];
-  const t = translations[lang] || translations.en;
-  nextPageBtn.textContent = t.nextButton;
-  finalMessage.textContent = t.finalMessage;
-}
+let currentPieceIndex = 0;
+let pieceTimer;
 
 // アートボードのサイズと位置を画面に合わせて調整する関数
 function resizeArtboard() {
@@ -28,56 +22,68 @@ function resizeArtboard() {
   artboard.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
 }
 
-// ページを読み込む関数（広告プリロード方式）
+// ページを読み込む関数
 function loadPage(pageIndex) {
   artboard.innerHTML = '';
   nextPageBtn.classList.add('hidden');
   finalMessage.classList.add('hidden');
-  
-  const currentPage = pagesData[pageIndex];
-  if (!currentPage) return;
-
-  // ページに必要な全ての広告枠を、最初に一度だけすべて生成する
-  currentPage.pieces.forEach(pieceData => {
-    const adElement = document.createElement('div');
-    adElement.classList.add('ad-piece', 'hidden-ad'); // 最初は非表示
-    
-    adElement.style.top = pieceData.top;
-    adElement.style.left = pieceData.left;
-    adElement.style.width = pieceData.width;
-    adElement.style.height = pieceData.height;
-    adElement.style.clipPath = `url(#${pieceData.clipPathId})`;
-
-    // 広告用のiframeを作成して広告を読み込ませる
-    const adTagHTML = '<html><head></head><body style="margin:0;"><script src="https://adm.shinobi.jp/s/1447b7928ae9bb4ca1f5940aec4a4516"><\/script></body></html>';
-    const iframe = document.createElement('iframe');
-    iframe.style.width = '100%';
-    iframe.style.height = '100%';
-    iframe.style.border = '0';
-    iframe.setAttribute('scrolling', 'no');
-    iframe.srcdoc = adTagHTML;
-    adElement.appendChild(iframe);
-
-    artboard.appendChild(adElement);
-  });
+  currentPieceIndex = 0;
+  showNextPiece();
 }
 
-// 次のピースを表示する関数（プリロード方式）
+// 次のピースを表示する関数
 function showNextPiece() {
-  const hiddenPieces = artboard.querySelectorAll('.ad-piece.hidden-ad');
+  const currentPage = pagesData[currentPageIndex];
+  if (!currentPage) return;
+  const pieces = currentPage.pieces;
 
-  if (hiddenPieces.length > 0) {
-    hiddenPieces[0].classList.remove('hidden-ad');
-  }
-
-  // もし非表示のピースが残り1つになったら（＝最後のピースが表示されたら）
-  if (hiddenPieces.length <= 1) {
+  if (currentPieceIndex >= pieces.length) {
     if (currentPageIndex >= pagesData.length - 1) {
       finalMessage.classList.remove('hidden');
     } else {
       nextPageBtn.classList.remove('hidden');
     }
+    return;
   }
+
+  const pieceData = pieces[currentPieceIndex];
+  const adElement = document.createElement('div');
+  adElement.classList.add('ad-piece');
+  
+  adElement.style.top = pieceData.top;
+  adElement.style.left = pieceData.left;
+  adElement.style.width = pieceData.width;
+  adElement.style.height = pieceData.height;
+  adElement.style.clipPath = `url(#${pieceData.clipPathId})`;
+
+  // ▼▼▼ iframe を使った、最終的で確実な広告表示コード ▼▼▼
+  const adTag = '<script src="https://adm.shinobi.jp/s/1447b7928ae9bb4ca1f5940aec4a4516"><\/script>';
+  const iframe = document.createElement('iframe');
+  iframe.style.width = '100%';
+  iframe.style.height = '100%';
+  iframe.style.border = '0';
+  iframe.style.overflow = 'hidden';
+  iframe.setAttribute('scrolling', 'no');
+  
+  adElement.appendChild(iframe);
+  const iframeDoc = iframe.contentWindow.document;
+  iframeDoc.open();
+  iframeDoc.write('<html><head></head><body style="margin:0;">' + adTag + '</body></html>');
+  iframeDoc.close();
+  // ▲▲▲ ここまで ▲▲▲
+
+  artboard.appendChild(adElement);
+
+  currentPieceIndex++;
+  pieceTimer = setTimeout(showNextPiece, 3000);
+}
+
+// UIのテキストを翻訳する関数
+function translateUI() {
+  const lang = navigator.language.split('-')[0];
+  const t = translations[lang] || translations.en;
+  nextPageBtn.textContent = t.nextButton;
+  finalMessage.textContent = t.finalMessage;
 }
 
 // --- イベントリスナー ---
@@ -86,7 +92,6 @@ window.addEventListener('resize', resizeArtboard);
 document.addEventListener('click', () => {
   clickSound.currentTime = 0;
   clickSound.play();
-
   if (isFirstClick) {
     const bgm = document.getElementById('bgm');
     if (bgm) {
@@ -95,8 +100,11 @@ document.addEventListener('click', () => {
     }
     isFirstClick = false;
   }
-  
-  showNextPiece();
+  const currentPage = pagesData[currentPageIndex];
+  if (currentPage && currentPieceIndex < currentPage.pieces.length) {
+    clearTimeout(pieceTimer);
+    showNextPiece();
+  }
 });
 
 nextPageBtn.addEventListener('click', (e) => {
