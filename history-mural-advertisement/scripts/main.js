@@ -100,25 +100,28 @@ function showNextPiece() {
 
   //adElement.innerHTML = `<ins class="adsbygoogle" style="display:block; width:100%; height:100%;" data-ad-client="${adClient}" data-ad-slot="${adSlot}"></ins>`;
   //adElement.innerHTML = `<script src="https://adm.shinobi.jp/s/1447b7928ae9bb4ca1f5940aec4a4516"></script>`;
+    // ▼▼▼ ここからが「ウォーターフォール」のロジック ▼▼▼
   
-  const currentAdTag = adTags[adTagIndex];
-  const adTagHTML = `<html><head></head><body style="margin:0;">${currentAdTag}</body></html>`;
-  
-  const iframe = document.createElement('iframe');
-  iframe.style.width = '100%';
-  iframe.style.height = '100%';
-  iframe.style.border = '0';
-  iframe.setAttribute('scrolling', 'no');
-  iframe.srcdoc = adTagHTML;
-  
-  adElement.appendChild(iframe);
-
-  adTagIndex++;
-  if (adTagIndex >= adTags.length) {
-    adTagIndex = 0;
+  // 1. 成功するまで広告を順番に試す非同期関数を定義
+  async function tryAdTags() {
+    for (const adTag of adTags) {
+      try {
+        // 2. 広告を読み込めるか試す
+        await loadAdInIframe(adElement, adTag);
+        // 3. 成功したら、ループを抜けて処理を完了
+        console.log('Ad loaded successfully!');
+        return;
+      } catch (error) {
+        // 4. 失敗したら、次の広告タグでループを続ける
+        console.warn('Ad failed to load, trying next tag...', error);
+      }
+    }
+    // 5. 全ての広告タグが失敗した場合
+    console.error('All ad tags failed to load.');
   }
-  
-  artboard.appendChild(adElement);
+
+  // 6. 非同期で広告の読み込みを開始
+  tryAdTags();
 
   //try {
   //  (adsbygoogle = window.adsbygoogle || []).push({});
@@ -128,6 +131,45 @@ function showNextPiece() {
 
   currentPieceIndex++;
   pieceTimer = setTimeout(showNextPiece, 3000);
+}
+// ▼▼▼ iframeに広告を読み込むための、新しい補助関数を追加 ▼▼▼
+function loadAdInIframe(container, adTag) {
+  return new Promise((resolve, reject) => {
+    const iframe = document.createElement('iframe');
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.border = '0';
+    iframe.setAttribute('scrolling', 'no');
+    
+    let timer = setTimeout(() => {
+      // 5秒経っても広告が読み込まれなければ失敗とみなす
+      reject(new Error('Ad load timed out'));
+    }, 5000);
+
+    iframe.onload = () => {
+      // 読み込みが成功したらタイマーを解除し、成功を通知
+      clearTimeout(timer);
+      // iframeの中身が空でないことを確認
+      if (iframe.contentWindow.document.body.firstChild) {
+        resolve();
+      } else {
+        reject(new Error('Ad content is empty'));
+      }
+    };
+    
+    iframe.onerror = () => {
+      // 読み込み中にエラーが発生したらタイマーを解除し、失敗を通知
+      clearTimeout(timer);
+      reject(new Error('Iframe failed to load'));
+    };
+
+    container.innerHTML = ''; // 中身を一度クリア
+    container.appendChild(iframe);
+    
+    // srcdocを使うとonloadのタイミングが安定する
+    const adTagHTML = `<html><head></head><body style="margin:0;">${adTag}</body></html>`;
+    iframe.srcdoc = adTagHTML;
+  });
 }
 
 // --- イベントリスナー ---
@@ -164,6 +206,7 @@ window.addEventListener('load', () => {
   loadPage(currentPageIndex);
   translateUI();
 });
+
 
 
 
