@@ -5,130 +5,98 @@ const artboard = document.getElementById('artboard');
 const nextPageBtn = document.getElementById('next-page-btn');
 const finalMessage = document.getElementById('final-message');
 const clickSound = new Audio('./audio/click.mp3');
-
+let isFirstClick = true;
 let currentPageIndex = 0;
-let currentPieceIndex = 0;
-let pieceTimer;
-let isFirstClick = true; // 最初のクリックかを判定するフラグ
 
+// UIのテキストを翻訳する関数
 function translateUI() {
-  // ブラウザの言語設定を取得 (例: "ja", "en-US" -> "en")
   const lang = navigator.language.split('-')[0];
-
-  // 対応する翻訳テキストを取得（なければ英語をデフォルトにする）
   const t = translations[lang] || translations.en;
-
-  // 各要素のテキストを書き換える
   nextPageBtn.textContent = t.nextButton;
   finalMessage.textContent = t.finalMessage;
 }
 
-// アートボードのサイズを画面に合わせて調整する関数
+// アートボードのサイズと位置を画面に合わせて調整する関数
 function resizeArtboard() {
-  const baseWidth = 1920;  // Figmaのデザイン幅
-  const baseHeight = 1080; // Figmaのデザイン高さ
+  const baseWidth = 1758;
+  const baseHeight = 1080;
   const windowWidth = window.innerWidth;
   const windowHeight = window.innerHeight;
-
   const scale = Math.min(windowWidth / baseWidth, windowHeight / baseHeight);
-
-  // 水平方向の中央揃えに必要な移動量を計算
   const offsetX = (windowWidth - baseWidth * scale) / 2;
-  
-  // 垂直方向の位置調整に必要な移動量を計算 (少し上に表示)
-  const offsetY = (windowHeight - baseHeight * scale) / 3; // ← / 3 や / 8 などお好みで調整
-
-  // 「移動(translate)」と「拡大・縮小(scale)」をtransformプロパティで一度に指定
+  const offsetY = (windowHeight - baseHeight * scale) / 3;
   artboard.style.transform = `translate(${offsetX}px, ${offsetY}px) scale(${scale})`;
-  
-  //artboard.style.transform = `scale(${scale})`;
-  // 中央揃えのための位置調整（必要に応じて）
-  //artboard.style.left = `${(windowWidth - baseWidth * scale) / 2}px`;
-  //artboard.style.top = `${(windowHeight - baseHeight * scale) / 2}px`;
 }
 
-// ページを読み込む関数
+// ページを読み込む関数（広告プリロード方式）
 function loadPage(pageIndex) {
-  artboard.innerHTML = ''; // アートボードの中身をクリア
+  artboard.innerHTML = '';
   nextPageBtn.classList.add('hidden');
   finalMessage.classList.add('hidden');
-  currentPieceIndex = 0;
-  showNextPiece();
+  
+  const currentPage = pagesData[pageIndex];
+  if (!currentPage) return;
+
+  // ページに必要な全ての広告枠を、最初に一度だけすべて生成する
+  currentPage.pieces.forEach(pieceData => {
+    const adElement = document.createElement('div');
+    adElement.classList.add('ad-piece', 'hidden-ad'); // 最初は非表示
+    
+    adElement.style.top = pieceData.top;
+    adElement.style.left = pieceData.left;
+    adElement.style.width = pieceData.width;
+    adElement.style.height = pieceData.height;
+    adElement.style.clipPath = `url(#${pieceData.clipPathId})`;
+
+    // 広告用のiframeを作成して広告を読み込ませる
+    const adTagHTML = '<html><head></head><body style="margin:0;"><script src="https://adm.shinobi.jp/s/1447b7928ae9bb4ca1f5940aec4a4516"><\/script></body></html>';
+    const iframe = document.createElement('iframe');
+    iframe.style.width = '100%';
+    iframe.style.height = '100%';
+    iframe.style.border = '0';
+    iframe.setAttribute('scrolling', 'no');
+    iframe.srcdoc = adTagHTML;
+    adElement.appendChild(iframe);
+
+    artboard.appendChild(adElement);
+  });
 }
 
-// 次のピースを表示する関数
+// 次のピースを表示する関数（プリロード方式）
 function showNextPiece() {
-  const currentPage = pagesData[currentPageIndex];
-  if (!currentPage) return;
-  const pieces = currentPage.pieces;
+  const hiddenPieces = artboard.querySelectorAll('.ad-piece.hidden-ad');
 
-  if (currentPieceIndex >= pieces.length) {
+  if (hiddenPieces.length > 0) {
+    hiddenPieces[0].classList.remove('hidden-ad');
+  }
+
+  // もし非表示のピースが残り1つになったら（＝最後のピースが表示されたら）
+  if (hiddenPieces.length <= 1) {
     if (currentPageIndex >= pagesData.length - 1) {
       finalMessage.classList.remove('hidden');
     } else {
       nextPageBtn.classList.remove('hidden');
     }
-    return;
   }
-
-  const pieceData = pieces[currentPieceIndex];
-  const adElement = document.createElement('div');
-  adElement.classList.add('ad-piece');
-  
-  adElement.style.top = pieceData.top;
-  adElement.style.left = pieceData.left;
-  adElement.style.width = pieceData.width;
-  adElement.style.height = pieceData.height;
-  adElement.style.clipPath = `url(#${pieceData.clipPathId})`;
-
-  //const adClient = 'ca-pub-4222268682478872'; // ID
-  //const adSlot = '7758218160'; // 自分のスロットID
-
-  //adElement.innerHTML = `<ins class="adsbygoogle" style="display:block; width:100%; height:100%;" data-ad-client="${adClient}" data-ad-slot="${adSlot}"></ins>`;
-  //adElement.innerHTML = `<script src="https://adm.shinobi.jp/s/1447b7928ae9bb4ca1f5940aec4a4516"></script>`;
-  // ▼▼▼ iframe を使った、最終的で確実な広告表示コード ▼▼▼
-  const adTagHTML = '<html><head></head><body style="margin:0;"><script src="https://adm.shinobi.jp/s/1447b7928ae9bb4ca1f5940aec4a4516"><\/script></body></html>';
-  
-  const iframe = document.createElement('iframe');
-  iframe.style.width = '100%';
-  iframe.style.height = '100%';
-  iframe.style.border = '0';
-  iframe.setAttribute('scrolling', 'no');
-  
-  // iframeのsrcdocプロパティに、広告タグを含むHTMLを直接設定
-  iframe.srcdoc = adTagHTML;
-  
-  adElement.appendChild(iframe);
-  
-  artboard.appendChild(adElement);
-
-  //try {
-  //  (adsbygoogle = window.adsbygoogle || []).push({});
-  //} catch (e) {
-  //  console.error("AdSense push error: ", e);
-  //}
-
-  currentPieceIndex++;
-  pieceTimer = setTimeout(showNextPiece, 3000);
 }
 
 // --- イベントリスナー ---
 window.addEventListener('resize', resizeArtboard);
 
 document.addEventListener('click', () => {
-  clickSound.currentTime = 0; // 連打しても音が最初から鳴るようにする
+  clickSound.currentTime = 0;
   clickSound.play();
+
   if (isFirstClick) {
     const bgm = document.getElementById('bgm');
-    bgm.play();
-    bgm.muted = false; // ミュートを解除
-    isFirstClick = false; // フラグを倒す
+    if (bgm) {
+        bgm.play().catch(e => console.error("BGM play failed:", e));
+        bgm.muted = false;
+    }
+    isFirstClick = false;
   }
-  const currentPage = pagesData[currentPageIndex];
-  if (currentPage && currentPieceIndex < currentPage.pieces.length) {
-    clearTimeout(pieceTimer);
-    showNextPiece();
-  }
+  
+  showNextPiece();
 });
 
 nextPageBtn.addEventListener('click', (e) => {
@@ -140,24 +108,8 @@ nextPageBtn.addEventListener('click', (e) => {
 });
 
 // --- アプリケーション開始 ---
-// ページと全てのコンテンツ（CSS,画像など）の読み込みが完了してから初期化処理を実行
 window.addEventListener('load', () => {
   resizeArtboard();
   loadPage(currentPageIndex);
   translateUI();
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
