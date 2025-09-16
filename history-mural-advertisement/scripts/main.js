@@ -7,12 +7,11 @@ const adTags = [
   '<script src="https://adm.shinobi.jp/s/84812d06e9b861b75b7981c7f74ccc8b"></script>',
   '<script src="https://adm.shinobi.jp/s/8b90766efb3a831e438882a0c036aa83"></script>',
   '<script src="https://adm.shinobi.jp/s/ebb9b7ec871425caee8bc85123e83553"></script>',
-  '<script src="https://adm.shinobi.jp/s/aa9316e991247a72eaf6ebb767cbb753"></script>,
+  '<script src="https://adm.shinobi.jp/s/aa9316e991247a72eaf6ebb767cbb753"></script>',
   '<script src="https://adm.shinobi.jp/s/c5a1d9691dbce806419f422a435b51f8"></script>',
   '<script src="https://adm.shinobi.jp/s/12a27a1d2371a6d4526db3fc9a78c83b"></script>',
   '<script src="https://adm.shinobi.jp/s/e1abadac49515543185dd357ccfe0c70"></script>',
   '<script src="https://adm.shinobi.jp/s/3fcafe8cb78c649522128f137a094c67"></script>',
-  // ... 作成した広告タグをすべてここに追加 ...
 ];
 let adTagIndex = 0; // 表示する広告タグのインデックスを管理
 
@@ -165,6 +164,7 @@ window.addEventListener('load', () => {
   loadPage(currentPageIndex);
   translateUI();
 });
+
 
 
 
