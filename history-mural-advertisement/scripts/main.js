@@ -56,23 +56,38 @@ function showNextPiece() {
   adElement.style.height = pieceData.height;
   adElement.style.clipPath = `url(#${pieceData.clipPathId})`;
 
-  // ▼▼▼ iframe を使った、最終的で確実な広告表示コード ▼▼▼
+
+  // ▼▼▼ ここから下の広告表示コードを、新しいものに置き換えます ▼▼▼
+
+  // 一時的に非表示のiframeを作成して、その中でdocument.writeを実行させる
   const adTag = '<script src="https://adm.shinobi.jp/s/1447b7928ae9bb4ca1f5940aec4a4516"><\/script>';
-  const iframe = document.createElement('iframe');
-  iframe.style.width = '100%';
-  iframe.style.height = '100%';
-  iframe.style.border = '0';
-  iframe.style.overflow = 'hidden';
-  iframe.setAttribute('scrolling', 'no');
   
-  adElement.appendChild(iframe);
-  const iframeDoc = iframe.contentWindow.document;
+  const tempIframe = document.createElement('iframe');
+  tempIframe.style.display = 'none'; // 画面には表示しない
+  document.body.appendChild(tempIframe); // 一時的にページに追加
+
+  const iframeDoc = tempIframe.contentWindow.document;
   iframeDoc.open();
-  iframeDoc.write('<html><head></head><body style="margin:0;">' + adTag + '</body></html>');
+  // document.writeで生成されたHTMLを取得
+  iframeDoc.write(adTag);
   iframeDoc.close();
-  // ▲▲▲ ここまで ▲▲▲
+  
+  // document.writeによってiframe内に生成された広告要素を、
+  // 本来の広告枠(adElement)に移動させる
+  const adContent = iframeDoc.body.firstChild;
+  if (adContent) {
+    adElement.appendChild(adContent);
+  }
+  
+  // 一時的に使ったiframeはページから削除
+  document.body.removeChild(tempIframe);
+
+  // ▲▲▲ 置き換えはここまで ▲▲▲
+
 
   artboard.appendChild(adElement);
+
+  // AdSense用のtry-catchブロックは不要なので削除します
 
   currentPieceIndex++;
   pieceTimer = setTimeout(showNextPiece, 3000);
@@ -121,3 +136,4 @@ window.addEventListener('load', () => {
   loadPage(currentPageIndex);
   translateUI();
 });
+
